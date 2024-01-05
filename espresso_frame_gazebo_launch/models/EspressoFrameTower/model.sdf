@@ -1,0 +1,84 @@
+<?xml version='1.0'?>
+<sdf version="1.4">
+  <model name="EspressoFrameTower">
+    <link name="body_link">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <pose>-0.04 0 0 0 0 0</pose>
+        <mass>1.0</mass>
+        <inertia>
+          <ixx>0.0065</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.0048</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.011</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <pose>-0.04 0 0.01 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.240 0.280 0.02</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <pose>-0.04 0 0.01 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.240 0.280 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+        </material>
+      </visual>
+      <visual name="visual_left">
+        <pose>-0.08 0.13 0.32 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.02 0.02 0.6</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Gray</name>
+          </script>
+        </material>
+      </visual>
+      <visual name="visual_right">
+        <pose>-0.08 -0.13 0.32 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.02 0.02 0.6</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Gray</name>
+          </script>
+        </material>
+      </visual>
+      <visual name="visual_top">
+        <pose>-0.08 0 0.63 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.02 0.28 0.02</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Gray</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

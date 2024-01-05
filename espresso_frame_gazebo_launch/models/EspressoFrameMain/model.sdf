@@ -1,0 +1,35 @@
+<?xml version='1.0'?>
+<sdf version="1.4">
+  <model name="EspressoFrameMain">
+    <include>
+      <name>espresso_frame_move</name>
+      <uri>model://EspressoFrameMove</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>espresso_frame_tower</name>
+      <uri>model://EspressoFrameTower</uri>
+      <pose>0 0 0.2 0 0 0</pose>
+    </include>
+
+    <include>
+      <name>espresso_frame_head</name>
+      <uri>model://EspressoFrameHead</uri>
+      <pose>0.02 0 0.6 0 0 0</pose>
+    </include>
+
+    <joint name='espresso_frame_tower_joint' type='fixed'>
+      <parent>espresso_frame_move::body_link</parent>
+      <child>espresso_frame_tower::body_link</child>
+      <pose>0 0 0 0 0 0</pose>
+    </joint>
+
+    <joint name='espresso_frame_head_joint' type='fixed'>
+      <parent>espresso_frame_move::body_link</parent>
+      <child>espresso_frame_head::body_link</child>
+      <pose>0 0 0 0 0 0</pose>
+    </joint>
+
+  </model>
+</sdf>
