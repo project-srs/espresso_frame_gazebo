@@ -14,19 +14,21 @@ find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
+# MAVROS move plugin
 add_library(mavros_move_plugin SHARED
   src/mavros_move_plugin.cpp
 )
 target_include_directories(mavros_move_plugin PUBLIC include)
 ament_target_dependencies(mavros_move_plugin
-  "std_msgs"
-  "std_srvs"
-  "geometry_msgs"
-  "nav_msgs"
-  "gazebo_ros"
-  "rclcpp"
-  "tf2_ros"
+  std_msgs
+  std_srvs
+  geometry_msgs
+  nav_msgs
+  gazebo_ros
+  rclcpp
+  tf2_ros
 )
 ament_export_libraries(mavros_move_plugin)
 install(TARGETS
@@ -35,19 +37,20 @@ install(TARGETS
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
 
-
+# Feetech Turret Plugin
 add_library(feetech_turret_plugin SHARED
   src/feetech_turret_plugin.cpp
 )
 target_include_directories(feetech_turret_plugin PUBLIC include)
 ament_target_dependencies(feetech_turret_plugin
-  "std_msgs"
-  "std_srvs"
-  "geometry_msgs"
-  "nav_msgs"
-  "gazebo_ros"
-  "rclcpp"
-  "tf2_ros"
+  std_msgs
+  std_srvs
+  geometry_msgs
+  nav_msgs
+  gazebo_ros
+  rclcpp
+  tf2_ros
+  tf2_geometry_msgs
 )
 ament_export_libraries(feetech_turret_plugin)
 install(TARGETS

@@ -18,6 +18,7 @@
 #include <std_srvs/srv/set_bool.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/bool.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 #include <memory>
 #include <string>
@@ -36,20 +37,22 @@ public:
   {
     ros_node_ = ros_node;
     odometry_pub_ =
-        ros_node_->create_publisher<nav_msgs::msg::Odometry>("/device/head_turret/odom", rclcpp::QoS(1));
+      ros_node_->create_publisher<nav_msgs::msg::Odometry>(
+      "/device/head_turret/odom", rclcpp::QoS(
+        1));
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(ros_node_);
 
     cmd_rate_sub_ = ros_node_->create_subscription<geometry_msgs::msg::TwistStamped>(
-        "/device/head_turret/cmd_rate", rclcpp::QoS(1),
-        std::bind(&FeetechTurretRosIF::OnCmdRate, this, std::placeholders::_1));
+      "/device/head_turret/cmd_rate", rclcpp::QoS(1),
+      std::bind(&FeetechTurretRosIF::OnCmdRate, this, std::placeholders::_1));
   }
 
-  void publishOdom(const nav_msgs::msg::Odometry& odom)
+  void publishOdom(const nav_msgs::msg::Odometry & odom)
   {
     odometry_pub_->publish(odom);
   }
 
-  void broadcastTf(const nav_msgs::msg::Odometry& odom)
+  void broadcastTf(const nav_msgs::msg::Odometry & odom)
   {
     geometry_msgs::msg::TransformStamped transformStamped;
     transformStamped.header = odom.header;
@@ -94,7 +97,7 @@ public:
     onLoad(gazebo_ros::Node::Get(_sdf));
 
     update_connection_ = gazebo::event::Events::ConnectWorldUpdateBegin(
-        std::bind(&TurretDriver::OnUpdate, this, std::placeholders::_1));
+      std::bind(&TurretDriver::OnUpdate, this, std::placeholders::_1));
   }
 
   // Documentation inherited
@@ -105,7 +108,7 @@ public:
 protected:
   virtual void onLoad(const gazebo_ros::Node::SharedPtr ros_node) = 0;
   virtual void onConrtolUpdate(void) = 0;
-  virtual void onOdomUpdate(const nav_msgs::msg::Odometry& msg) = 0;
+  virtual void onOdomUpdate(const nav_msgs::msg::Odometry & msg) = 0;
 
   void setJointVelocity(const float pitch, const float yaw)
   {
@@ -114,39 +117,25 @@ protected:
   }
 
 private:
-  void OnUpdate(const gazebo::common::UpdateInfo& _info)
+  void OnUpdate(const gazebo::common::UpdateInfo & _info)
   {
     onConrtolUpdate();
 
     double seconds_since_last_update = (_info.simTime - last_update_time_).Double();
-    if (0.05f <= seconds_since_last_update)
-    {
+    if (0.05f <= seconds_since_last_update) {
       last_update_time_ = _info.simTime;
 
-      // static float counter = 0;
-      // counter++;
-      // float diff_x = 0.1f * std::min(std::max((float)counter * 0.05f, 20.0f), 30.0f);
-
       nav_msgs::msg::Odometry odom;
-      odom.header.frame_id = "odom";
+      odom.header.frame_id = "turret_base_link";
       odom.header.stamp = gazebo_ros::Convert<builtin_interfaces::msg::Time>(_info.simTime);
-      odom.child_frame_id = "base_link";
+      odom.child_frame_id = "turret_tip_link";
       ignition::math::Pose3d pose = body_link_->WorldPose();
-      odom.pose.pose.position.x = pose.Pos().X();
-      odom.pose.pose.position.y = pose.Pos().Y();
-      odom.pose.pose.position.z = pose.Pos().Z();
-      odom.pose.pose.orientation.w = pose.Rot().W();
-      odom.pose.pose.orientation.x = pose.Rot().X();
-      odom.pose.pose.orientation.y = pose.Rot().Y();
-      odom.pose.pose.orientation.z = pose.Rot().Z();
-      ignition::math::Vector3d linear_vel = body_link_->RelativeLinearVel();
-      odom.twist.twist.linear.x = linear_vel.X();
-      odom.twist.twist.linear.y = linear_vel.Y();
-      odom.twist.twist.linear.z = linear_vel.Z();
-      ignition::math::Vector3d angular_vel = body_link_->RelativeAngularVel();
-      odom.twist.twist.angular.x = angular_vel.X();
-      odom.twist.twist.angular.y = angular_vel.Y();
-      odom.twist.twist.angular.z = angular_vel.Z();
+      tf2::Quaternion quat_tf;
+      quat_tf.setRPY(0.0f, pitch_joint_->Position(0), yaw_joint_->Position(0));
+      odom.pose.pose.orientation = tf2::toMsg(quat_tf);
+      odom.twist.twist.angular.x = 0.0f;
+      odom.twist.twist.angular.y = pitch_joint_->GetVelocity(0);
+      odom.twist.twist.angular.z = yaw_joint_->GetVelocity(0);
       onOdomUpdate(odom);
     }
   }
@@ -162,7 +151,8 @@ private:
 class FeetechTurret : public TurretDriver, FeetechTurretRosIF
 {
 public:
-  FeetechTurret() : TurretDriver{}, FeetechTurretRosIF{}
+  FeetechTurret()
+  : TurretDriver{}, FeetechTurretRosIF{}
   {
   }
 
@@ -182,10 +172,10 @@ protected:
     setJointVelocity(last_twist_data_.angular.y, last_twist_data_.angular.z);
   }
 
-  void onOdomUpdate(const nav_msgs::msg::Odometry& msg) override
+  void onOdomUpdate(const nav_msgs::msg::Odometry & msg) override
   {
-    // publishOdom(msg);
-    // broadcastTf(msg);
+    publishOdom(msg);
+    broadcastTf(msg);
   }
 
   void OnCmdRate(const geometry_msgs::msg::TwistStamped::SharedPtr _msg) override

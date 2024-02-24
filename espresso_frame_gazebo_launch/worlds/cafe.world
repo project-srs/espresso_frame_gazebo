@@ -130,7 +130,6 @@
         <pose>0 -6 3 0 0.5 1.5701</pose>
       </camera>
     </gui>
-
   </world>
 </sdf>
 

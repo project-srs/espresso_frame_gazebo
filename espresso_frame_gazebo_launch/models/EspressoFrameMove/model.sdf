@@ -83,6 +83,61 @@
           </script>
         </material>
       </visual>
+
+      <!-- <light type="spot" name="ardupilot_status_led0">
+        <pose>-0.16 0 0.05 0 -0.7 3.14</pose>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0.2 0.2 0.2 1</specular>
+        <attenuation>
+          <range>1.0</range>
+          <linear>0.01</linear>
+          <constant>0.5</constant>
+          <quadratic>0.0</quadratic>
+        </attenuation>
+        <direction>0 0 -1</direction>
+        <spot>
+          <inner_angle>0.5</inner_angle>
+          <outer_angle>1.0</outer_angle>
+          <falloff>1.0</falloff>
+        </spot>
+        <cast_shadows>false</cast_shadows>
+      </light>
+      <light type="spot" name="ardupilot_status_led1">
+        <pose>0.08 0.14 0.05 0 -0.7 1.05</pose>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0.2 0.2 0.2 1</specular>
+        <attenuation>
+          <range>1.0</range>
+          <linear>0.01</linear>
+          <constant>0.5</constant>
+          <quadratic>0.0</quadratic>
+        </attenuation>
+        <direction>0 0 -1</direction>
+        <spot>
+          <inner_angle>0.5</inner_angle>
+          <outer_angle>1.0</outer_angle>
+          <falloff>1.0</falloff>
+        </spot>
+        <cast_shadows>false</cast_shadows>
+      </light>
+      <light type="spot" name="ardupilot_status_led2">
+        <pose>0.08 -0.14 0.05 0 -0.7 -1.05</pose>
+        <diffuse>0 1 0 1</diffuse>
+        <specular>0.2 0.2 0.2 1</specular>
+        <attenuation>
+          <range>1.0</range>
+          <linear>0.01</linear>
+          <constant>0.5</constant>
+          <quadratic>0.0</quadratic>
+        </attenuation>
+        <direction>0 0 -1</direction>
+        <spot>
+          <inner_angle>0.5</inner_angle>
+          <outer_angle>1.0</outer_angle>
+          <falloff>1.0</falloff>
+        </spot>
+        <cast_shadows>false</cast_shadows>
+      </light> -->
     </link>
 
     <joint name='left_wheel_joint' type='revolute'>
@@ -298,7 +353,7 @@
 
       <sensor type="ray" name="front_laser">
         <pose>0 0 0 0 0 0</pose>
-        <visualize>true</visualize>
+        <!-- <visualize>true</visualize> -->
         <update_rate>10</update_rate>
         <ray>
           <scan>
