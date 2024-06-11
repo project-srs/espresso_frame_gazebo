@@ -9,6 +9,7 @@
 #include <gazebo_ros/node.hpp>
 #include <geometry_msgs/msg/pose2_d.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <sensor_msgs/msg/battery_state.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sdf/sdf.hh>
 #include <tf2_ros/transform_broadcaster.h>
@@ -45,6 +46,9 @@ public:
     mode_pub_ = ros_node_->create_publisher<std_msgs::msg::String>(
       "/device/mavros/setup/mode", rclcpp::QoS(
         1));
+    battery_pub_ = ros_node_->create_publisher<sensor_msgs::msg::BatteryState>(
+      "/device/mavros/sys_status/battery", rclcpp::QoS(
+        1));
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(ros_node_);
 
     cmd_vel_sub_ = ros_node_->create_subscription<geometry_msgs::msg::TwistStamped>(
@@ -60,6 +64,8 @@ public:
       std::bind(
         &MavrosMoveRosIF::onRequestMode, this, std::placeholders::_1,
         std::placeholders::_2));
+
+    ros_node_->declare_parameter("battery.voltage", 19.0f);
   }
 
   void publishOdom(const nav_msgs::msg::Odometry & odom)
@@ -93,6 +99,20 @@ public:
     mode_pub_->publish(msg);
   }
 
+  void publishBatteryState(const rclcpp::Time ros_now)
+  {
+    const float voltage = ros_node_->get_parameter("battery.voltage").as_double();
+    sensor_msgs::msg::BatteryState batt;
+    batt.header.stamp = ros_now;
+    batt.voltage = voltage;
+    batt.current = -0.9f;
+    batt.percentage = 0.97f;
+    batt.power_supply_status = sensor_msgs::msg::BatteryState::POWER_SUPPLY_STATUS_DISCHARGING;
+    batt.present = true;
+    batt.cell_voltage.push_back(voltage);
+    battery_pub_->publish(batt);
+  }
+
   rclcpp::Logger getLogger(void)
   {
     return ros_node_->get_logger();
@@ -112,6 +132,7 @@ private:
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odometry_pub_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr armed_pub_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr mode_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::BatteryState>::SharedPtr battery_pub_;
 
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr cmd_vel_sub_;
   rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr request_arming_srv_;
@@ -148,6 +169,7 @@ protected:
   virtual void onLoad(const gazebo_ros::Node::SharedPtr ros_node) = 0;
   virtual void onConrtolUpdate(void) = 0;
   virtual void onOdomUpdate(const nav_msgs::msg::Odometry & msg) = 0;
+  virtual void onBatteryStatusUpdate(const rclcpp::Time ros_now) = 0;
 
   void setJointVelocity(const float left, const float right)
   {
@@ -190,6 +212,8 @@ private:
       odom.twist.twist.angular.y = angular_vel.Y();
       odom.twist.twist.angular.z = angular_vel.Z();
       onOdomUpdate(odom);
+
+      onBatteryStatusUpdate(rclcpp::Time(gazebo_ros::Convert<builtin_interfaces::msg::Time>(_info.simTime)));
     }
   }
 
@@ -266,6 +290,11 @@ protected:
     RCLCPP_INFO(getLogger(), "onRequestMode");
     is_guided_ = request->data;
     response->success = true;
+  }
+
+  void onBatteryStatusUpdate(const rclcpp::Time ros_now)
+  {
+    publishBatteryState(ros_now);
   }
 
 private:

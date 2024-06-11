@@ -12,6 +12,7 @@ find_package(gazebo_ros REQUIRED)
 find_package(gazebo_plugins REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
@@ -25,6 +26,7 @@ ament_target_dependencies(mavros_move_plugin
   std_msgs
   std_srvs
   geometry_msgs
+  sensor_msgs
   nav_msgs
   gazebo_ros
   rclcpp
