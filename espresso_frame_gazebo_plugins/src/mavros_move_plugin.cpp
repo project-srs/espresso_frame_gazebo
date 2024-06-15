@@ -47,7 +47,7 @@ public:
       "/device/mavros/setup/mode", rclcpp::QoS(
         1));
     battery_pub_ = ros_node_->create_publisher<sensor_msgs::msg::BatteryState>(
-      "/device/mavros/sys_status/battery", rclcpp::QoS(
+      "/device/mavros/battery", rclcpp::QoS(
         1));
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(ros_node_);
 
