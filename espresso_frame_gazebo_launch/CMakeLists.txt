@@ -9,8 +9,13 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(espresso_frame_gazebo_plugins REQUIRED)
 
-install(DIRECTORY launch worlds models
+install(DIRECTORY launch worlds models urdf
   DESTINATION share/${PROJECT_NAME}/
+)
+
+install(PROGRAMS
+  scripts/sample_app.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

@@ -20,7 +20,7 @@ from tf2_geometry_msgs import do_transform_point
 from geometry_msgs.msg import Point, PointStamped, PoseWithCovarianceStamped, Pose2D
 
 from std_msgs.msg import Bool, String
-from geometry_msgs.msg import Twist, TwistStamped, TransformStamped, Pose, PoseWithCovarianceStamped
+from geometry_msgs.msg import Twist, TwistStamped, Transform, TransformStamped, Pose, PoseWithCovarianceStamped
 from sensor_msgs.msg import BatteryState
 from nav_msgs.msg import Odometry
 from std_srvs.srv import SetBool
@@ -32,12 +32,14 @@ class DummyMove(Node):
     def __init__(self):
         super().__init__('mavros_move')
 
-        # mavros
+        self.declare_parameter('initial_pose.x', 0.0)
+        self.declare_parameter('initial_pose.y', 0.0)
+        self.declare_parameter('initial_pose.theta', 0.0)
+
+        # mavros(move)
         self.odometry_pub = self.create_publisher(Odometry, "mavros/velocity_position/odom", 1)
         self.armed_pub = self.create_publisher(Bool, "mavros/setup/armed", 1)
         self.mode_pub = self.create_publisher(String, "mavros/setup/mode", 1)
-        self.battery_pub = self.create_publisher(BatteryState, "mavros/battery", 1)
-        self.tf_broadcaster = TransformBroadcaster(self)
 
         self.cmd_vel_sub = self.create_subscription(TwistStamped, "mavros/setpoint_velocity/cmd_vel", self.cmd_vel_callback, 1)
         self.arming_srv = self.create_service(SetBool, "mavros/setup/request_arming", self.set_arming_callback)
@@ -46,10 +48,20 @@ class DummyMove(Node):
         self.last_armed = False
         self.last_is_guided = False
 
+        # mavros(other)
+        self.battery_pub = self.create_publisher(BatteryState, "mavros/battery", 1)
+
+        # map
+        self.map_pose_pub = self.create_publisher(PoseWithCovarianceStamped, "perception/slam_toolbox/pose", 1)
+
+        # battery
+
+        # other
         self.dt = 0.05
         self.interval_timer = self.create_timer(self.dt, self.timer_callback)
         self.last_twist = Twist()
         self.last_local_position = Pose2D()
+        self.tf_broadcaster = TransformBroadcaster(self)
 
     def cmd_vel_callback(self, msg):
         self.last_cmd_vel = msg
@@ -105,19 +117,42 @@ class DummyMove(Node):
         odom_tf.header.frame_id = "odom"
         odom_tf.header.stamp = ros_now.to_msg()
         odom_tf.child_frame_id = "base_link"
-        odom_tf.transform.translation.x = local_pose.position.x
-        odom_tf.transform.translation.y = local_pose.position.y
-        odom_tf.transform.translation.z = local_pose.position.z
-        odom_tf.transform.rotation = local_pose.orientation
+        odom_tf.transform = pose_to_transform(local_pose)
         self.tf_broadcaster.sendTransform(odom_tf)
 
+        # update map_pose
+        init_x = self.get_parameter('initial_pose.x').get_parameter_value().double_value
+        init_y = self.get_parameter('initial_pose.y').get_parameter_value().double_value
+        init_theta = self.get_parameter('initial_pose.theta').get_parameter_value().double_value
+
+        map_x = init_x + math.cos(init_theta) * self.last_local_position.x - math.sin(init_theta) * self.last_local_position.x
+        map_y = init_y + math.sin(init_theta) * self.last_local_position.x + math.cos(init_theta) * self.last_local_position.x
+        map_theta = init_theta + self.last_local_position.theta
+        last_map_pose = Pose()
+        last_map_pose.position.x = map_x
+        last_map_pose.position.x = map_y
+        last_map_pose.position.z = 0.0
+        last_map_pose.orientation.z = math.sin(map_theta / 2.0)
+        last_map_pose.orientation.w = math.cos(map_theta / 2.0)
+
+        # output map_pose
+        map_pose = PoseWithCovarianceStamped()
+        map_pose.header.frame_id = "map"
+        map_pose.header.stamp = ros_now.to_msg()
+        map_pose.pose.pose = last_map_pose
+        self.map_pose_pub.publish(map_pose)
+
         # output map_odom_tf
-        # map_odom_tf = TransformStamped()
-        # map_odom_tf.header.frame_id = "map"
-        # map_odom_tf.header.stamp = ros_now.to_msg()
-        # map_odom_tf.child_frame_id = "odom"
-        # map_odom_tf.transform.rotation.w = 1.0
-        # self.tf_broadcaster.sendTransform(map_odom_tf)
+        map_odom_tf = TransformStamped()
+        map_odom_tf.header.frame_id = "map"
+        map_odom_tf.header.stamp = ros_now.to_msg()
+        map_odom_tf.child_frame_id = "odom"
+        map_odom_tf.transform.translation.x = init_x
+        map_odom_tf.transform.translation.y = init_y
+        map_odom_tf.transform.translation.z = 0.0
+        map_odom_tf.transform.rotation.z = math.sin(init_theta / 2.0)
+        map_odom_tf.transform.rotation.w = math.cos(init_theta / 2.0)
+        self.tf_broadcaster.sendTransform(map_odom_tf)
 
         # output status
         armed_msg = Bool()
@@ -137,6 +172,14 @@ class DummyMove(Node):
         battery_msg.present = True
         battery_msg.cell_voltage.append(19.0)
         self.battery_pub.publish(battery_msg)
+
+def pose_to_transform(pose):
+    transform = Transform()
+    transform.translation.x = pose.position.x
+    transform.translation.y = pose.position.y
+    transform.translation.z = pose.position.z
+    transform.rotation = pose.orientation
+    return transform
 
 def main(argv=sys.argv):
     try:

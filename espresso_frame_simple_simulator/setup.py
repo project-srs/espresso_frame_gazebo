@@ -22,7 +22,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'mavros_move = espresso_frame_simple_simulator.mavros_move:main',
+            'dummy_move = espresso_frame_simple_simulator.dummy_move:main',
+            'dummy_turret = espresso_frame_simple_simulator.dummy_turret:main',
         ],
     },
 )
