@@ -52,7 +52,7 @@ class DummyMove(Node):
         self.battery_pub = self.create_publisher(BatteryState, "mavros/battery", 1)
 
         # map
-        self.map_pose_pub = self.create_publisher(PoseWithCovarianceStamped, "perception/slam_toolbox/pose", 1)
+        self.map_pose_pub = self.create_publisher(PoseWithCovarianceStamped, "/perception/slam_toolbox/pose", 1)
 
         # battery
 
@@ -125,12 +125,12 @@ class DummyMove(Node):
         init_y = self.get_parameter('initial_pose.y').get_parameter_value().double_value
         init_theta = self.get_parameter('initial_pose.theta').get_parameter_value().double_value
 
-        map_x = init_x + math.cos(init_theta) * self.last_local_position.x - math.sin(init_theta) * self.last_local_position.x
-        map_y = init_y + math.sin(init_theta) * self.last_local_position.x + math.cos(init_theta) * self.last_local_position.x
+        map_x = init_x + math.cos(init_theta) * self.last_local_position.x - math.sin(init_theta) * self.last_local_position.y
+        map_y = init_y + math.sin(init_theta) * self.last_local_position.x + math.cos(init_theta) * self.last_local_position.y
         map_theta = init_theta + self.last_local_position.theta
         last_map_pose = Pose()
         last_map_pose.position.x = map_x
-        last_map_pose.position.x = map_y
+        last_map_pose.position.y = map_y
         last_map_pose.position.z = 0.0
         last_map_pose.orientation.z = math.sin(map_theta / 2.0)
         last_map_pose.orientation.w = math.cos(map_theta / 2.0)

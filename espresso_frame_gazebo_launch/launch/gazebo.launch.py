@@ -1,5 +1,6 @@
 """Launch Gazebo server and client with command line arguments."""
 
+import os
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
@@ -41,6 +42,12 @@ def generate_launch_description():
                     ]
                 ),
                 launch_arguments={"verbose": "true"}.items(),
+            ),
+            Node(
+                package="laser_filters",
+                executable="scan_to_scan_filter_chain",
+                namespace='/device/front_laser',
+                parameters=[os.path.join(get_package_share_path("espresso_frame_gazebo_launch"), "config", "front_laser_filter.yaml")],
             ),
             Node(
                 package="joy",

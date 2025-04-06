@@ -9,7 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(espresso_frame_gazebo_plugins REQUIRED)
 
-install(DIRECTORY launch worlds models urdf
+install(DIRECTORY launch worlds models urdf config
   DESTINATION share/${PROJECT_NAME}/
 )
 

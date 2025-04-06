@@ -1,0 +1,22 @@
+/**:
+  ros__parameters:
+    filter1:
+      name: box_filter
+      type: laser_filters/LaserScanBoxFilter
+      params:
+        box_frame: base_link
+        max_x: 0.1
+        max_y: 0.22
+        max_z: 0.5
+        min_x: -0.22
+        min_y: -0.22
+        min_z: -0.5
+    filter2:
+      name: range_filter
+      type: laser_filters/LaserScanRangeFilter
+      params:
+        use_message_range_limits: false   # if not specified defaults to false
+        lower_threshold: 0.1              # if not specified defaults to 0.0
+        upper_threshold: 10.0              # if not specified defaults to 100000.0
+        lower_replacement_value: nan    # if not specified defaults to NaN
+        upper_replacement_value: nan     # if not specified defaults to NaN

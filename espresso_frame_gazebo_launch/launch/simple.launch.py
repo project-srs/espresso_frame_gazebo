@@ -30,12 +30,13 @@ def generate_launch_description():
             Node(
                 package="joy",
                 executable="joy_node",
-                remappings=[("joy", "/device/mavros/rc_joy/joy")],
+                namespace="/device/mavros/rc_joy",
                 output="screen",
             ),
             Node(
                 package='robot_state_publisher',
                 executable='robot_state_publisher',
+                namespace="/device",
                 parameters=[{'robot_description': ParameterValue(Command(['xacro ', str(get_package_share_path('espresso_frame_gazebo_launch')) + '/urdf/all.urdf']))}],
             ),
             Node(
