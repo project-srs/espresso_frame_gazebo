@@ -195,8 +195,9 @@ private:
       odom.header.stamp = gazebo_ros::Convert<builtin_interfaces::msg::Time>(_info.simTime);
       odom.child_frame_id = "base_link";
       ignition::math::Pose3d pose = body_link_->WorldPose() - initial_pose_.value();
-      odom.pose.pose.position.x = pose.Pos().X() + 0.2f *
-        std::min(std::max(_info.simTime.Float() - 10.0f, 0.0f), 10.0f);
+      odom.pose.pose.position.x = pose.Pos().X();
+      // odom.pose.pose.position.x = pose.Pos().X() + 0.2f *
+      //   std::min(std::max(_info.simTime.Float() - 10.0f, 0.0f), 10.0f);
       odom.pose.pose.position.y = pose.Pos().Y();
       odom.pose.pose.position.z = pose.Pos().Z();
       odom.pose.pose.orientation.w = pose.Rot().W();

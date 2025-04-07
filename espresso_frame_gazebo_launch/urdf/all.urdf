@@ -1,9 +1,23 @@
-<robot name="test_robot">
+<robot name="espresso_frame">
   <link name="base_link"/>
 
-  <joint name="turret_base_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0 0 0.6"/>
+  <joint name="front_laser_joint" type="fixed">
+    <origin rpy="0 0 3.141592" xyz="0.140 0 0.010"/>
     <parent link="base_link"/>
+    <child  link="front_laser_link"/>
+  </joint>
+  <link name="front_laser_link"/>
+
+  <joint name="frame_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.140 0 0.052"/>
+    <parent link="base_link"/>
+    <child  link="frame_link"/>
+  </joint>
+  <link name="frame_link"/>
+
+  <joint name="turret_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.095 0 0.673"/>
+    <parent link="frame_link"/>
     <child  link="turret_base_link"/>
   </joint>
   <link name="turret_base_link"/>
@@ -15,17 +29,16 @@
   <link name="turret_tip_link"/>
 
   <joint name="head_camera_joint" type="fixed">
-    <origin rpy="0 0 0" xyz="0.03 0 0"/>
+    <origin rpy="0 0 0" xyz="0.044 0 0"/>
     <parent link="turret_tip_link"/>
     <child  link="head_camera_link"/>
   </joint>
   <link name="head_camera_link"/>
 
-  <joint name="front_laser_joint" type="fixed">
-    <origin rpy="0 0 3.141592" xyz="0.140 0 0"/>
-    <parent link="base_link"/>
-    <child  link="front_laser_link"/>
+  <joint name="top_camera_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.014 0 0.990"/>
+    <parent link="frame_link"/>
+    <child  link="top_camera_link"/>
   </joint>
-  <link name="front_laser_link"/>
-
+  <link name="top_camera_link"/>
 </robot>
